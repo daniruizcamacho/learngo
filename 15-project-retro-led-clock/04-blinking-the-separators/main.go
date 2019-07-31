@@ -9,9 +9,9 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"time"
-
-	"github.com/inancgumus/screen"
 )
 
 func main() {
@@ -109,15 +109,18 @@ func main() {
 		zero, one, two, three, four, five, six, seven, eight, nine,
 	}
 
-	screen.Clear()
-
 	for {
-		screen.MoveTopLeft()
+		c := exec.Command("clear")
+		c.Stdout = os.Stdout
+		c.Run()
 
 		now := time.Now()
 		hour, min, sec := now.Hour(), now.Minute(), now.Second()
 
+		fmt.Printf("hour: %d, min: %d, sec: %d\n", hour, min, sec)
+		// [8][5]string
 		clock := [...]placeholder{
+			// extract the digits: 17 becomes, 1 and 7 respectively
 			digits[hour/10], digits[hour%10],
 			colon,
 			digits[min/10], digits[min%10],
@@ -126,8 +129,14 @@ func main() {
 		}
 
 		for line := range clock[0] {
-			for digit := range clock {
-				fmt.Print(clock[digit][line], "  ")
+			for index, digit := range clock {
+
+				print := clock[index][line]
+				if digit == colon && sec%2 == 0 {
+					print = "   "
+				}
+
+				fmt.Print(print, "  ")
 			}
 			fmt.Println()
 		}
